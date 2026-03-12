@@ -4,6 +4,7 @@ require("dotenv").config();
 require("./src/db/db");
 
 const authRoutes = require("./src/routes/authRoutes");
+const authMiddleware = require("./src/middleware/authMiddleware");
 const app = express();
 
 // middleware
@@ -14,6 +15,13 @@ app.use("/api/auth", authRoutes);
 // test route
 app.get("/", (req, res) => {
   res.send("SmartBiz Backend Running");
+});
+
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.json({
+    message: "Protected route accessed",
+    user: req.user
+  });
 });
 
 const PORT = process.env.PORT || 5000;
