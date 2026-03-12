@@ -5,12 +5,18 @@ require("./src/db/db");
 
 const authRoutes = require("./src/routes/authRoutes");
 const authMiddleware = require("./src/middleware/authMiddleware");
+const businessRoutes = require("./src/routes/businessRoutes");
+const productRoutes = require("./src/routes/productRoutes");
+const orderRoutes = require("./src/routes/orderRoutes");
 const app = express();
 
 // middleware
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/business", businessRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 // test route
 app.get("/", (req, res) => {
