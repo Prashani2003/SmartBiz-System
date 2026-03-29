@@ -1,68 +1,57 @@
 const db = require("../db/db");
 
 
-// CREATE ORDER
 exports.createOrder = (req, res) => {
 
-  const { business_id, customer_name, items } = req.body;
+  const { customer_name, items } = req.body;
+  const business_id = req.user.business_id;
 
-  // calculate total price
+  if (!customer_name || !items || items.length === 0) {
+    return res.status(400).json({ message: "Invalid data" });
+  }
+
+  // calculate total
   let total_price = 0;
-
   items.forEach(item => {
-    total_price += item.unit_price * item.qty;
+    total_price += item.price * item.quantity;
   });
 
-
-  // insert order
-  const orderSql =
-    "INSERT INTO orders (business_id, customer_name, total_price) VALUES (?,?,?)";
+  // 1️⃣ insert order
+  const orderSql = `
+    INSERT INTO orders (business_id, customer_name, total_price)
+    VALUES (?, ?, ?)
+  `;
 
   db.query(orderSql, [business_id, customer_name, total_price], (err, result) => {
 
     if (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Order Insert Error:", err);
+      return res.status(500).json(err);
     }
 
-    const orderId = result.insertId;
+    const order_id = result.insertId;
 
-
-    // prepare order items
-    const itemSql =
-      "INSERT INTO order_items (order_id, product_id, unit_price, qty) VALUES ?";
+    // 2️⃣ insert order items
+    const itemSql = `
+      INSERT INTO order_items (order_id, product_id, quantity, price)
+      VALUES ?
+    `;
 
     const values = items.map(item => [
-      orderId,
+      order_id,
       item.product_id,
-      item.unit_price,
-      item.qty
+      item.quantity,
+      item.price
     ]);
 
+    db.query(itemSql, [values], (err2) => {
 
-    // insert order items
-    db.query(itemSql, [values], (err) => {
-
-      if (err) {
-        return res.status(500).json({ error: err.message });
+      if (err2) {
+        console.error("Order Items Error:", err2);
+        return res.status(500).json(err2);
       }
 
-
-      // 🔥 reduce product stock
-      items.forEach(item => {
-
-        const updateStock =
-          "UPDATE products SET stock = stock - ? WHERE id=?";
-
-        db.query(updateStock, [item.qty, item.product_id]);
-
-      });
-
-
-      res.json({
-        message: "Order created successfully",
-        order_id: orderId,
-        total_price: total_price
-      });
+      res.json({ message: "Order created successfully" });
 
     });
 

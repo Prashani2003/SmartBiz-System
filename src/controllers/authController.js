@@ -73,11 +73,14 @@ exports.login = (req, res) => {
     }
 
     // JWT token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      "secretkey",
-      { expiresIn: "1h" }
-    );
+ const token = jwt.sign(
+  { 
+    id: user.id,
+    business_id: user.business_id || 1  // 🔥 FIX
+  },
+  "secretkey",
+  { expiresIn: "1h" }
+);
 
     res.json({
       message: "Login successful",
