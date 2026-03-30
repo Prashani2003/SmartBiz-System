@@ -10,13 +10,10 @@ exports.createOrder = (req, res) => {
     return res.status(400).json({ message: "Invalid data" });
   }
 
-  // calculate total
   let total_price = 0;
   items.forEach(item => {
     total_price += item.price * item.quantity;
   });
-
-  // 1️⃣ insert order
   const orderSql = `
     INSERT INTO orders (business_id, customer_name, total_price)
     VALUES (?, ?, ?)
@@ -31,7 +28,6 @@ exports.createOrder = (req, res) => {
 
     const order_id = result.insertId;
 
-    // 2️⃣ insert order items
     const itemSql = `
       INSERT INTO order_items (order_id, product_id, quantity, price)
       VALUES ?
@@ -61,7 +57,6 @@ exports.createOrder = (req, res) => {
 
 
 
-// GET ALL ORDERS
 exports.getOrders = (req, res) => {
 
   const business_id = req.user.id;
@@ -82,7 +77,6 @@ exports.getOrders = (req, res) => {
 
 
 
-// GET SINGLE ORDER + ITEMS
 exports.getOrderDetails = (req, res) => {
 
   const { id } = req.params;

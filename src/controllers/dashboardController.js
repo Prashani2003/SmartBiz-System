@@ -1,6 +1,5 @@
 const db = require("../db/db");
 
-// helper function (convert db.query → promise)
 const query = (sql, values) => {
   return new Promise((resolve, reject) => {
     db.query(sql, values, (err, result) => {
@@ -18,7 +17,6 @@ exports.getDashboard = async (req, res) => {
     const sql2 = "SELECT COUNT(*) AS total_orders, SUM(total_price) AS total_revenue FROM orders WHERE business_id=?";
     const sql3 = "SELECT COUNT(*) AS low_stock FROM products WHERE business_id=? AND stock < 5";
 
-    // 🔥 run queries in parallel (faster)
     const [products, orders, lowstock] = await Promise.all([
       query(sql1, [business_id]),
       query(sql2, [business_id]),
@@ -64,3 +62,52 @@ exports.getRecentSales = async (req, res) => {
 
 
 
+exports.getSalesData = (req, res) => {
+  const business_id = req.user.business_id;
+
+  const sql = `
+    SELECT DATE(created_at) AS date, SUM(total_price) AS total
+    FROM orders
+    WHERE business_id = ?
+    AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(created_at)
+    ORDER BY date ASC
+  `;
+
+  db.query(sql, [business_id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json(err);
+    }
+
+    res.json(results);
+  });
+};
+
+
+exports.getTopProducts = async (req, res) => {
+  try {
+    const business_id = req.user.business_id;
+
+    const sql = `
+      SELECT 
+        p.name,
+        SUM(oi.quantity) AS total_sold
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      JOIN orders o ON oi.order_id = o.id
+      WHERE o.business_id = ?
+      GROUP BY oi.product_id
+      ORDER BY total_sold DESC
+      LIMIT 5
+    `;
+
+    const result = await query(sql, [business_id]);
+
+    res.json(result);
+
+  } catch (error) {
+    console.error("Top Products Error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};

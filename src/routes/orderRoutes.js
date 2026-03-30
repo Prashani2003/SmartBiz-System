@@ -5,7 +5,7 @@ const orderController = require("../controllers/orderController");
 const authMiddleware = require("../middleware/authMiddleware");
 
 
-router.post("/create",authMiddleware,orderController.createOrder);
+router.post("/",authMiddleware,orderController.createOrder);
 
 router.get("/", authMiddleware, orderController.getOrders);
 

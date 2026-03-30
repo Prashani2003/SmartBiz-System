@@ -9,6 +9,9 @@ const businessRoutes = require("./src/routes/businessRoutes");
 const productRoutes = require("./src/routes/productRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes");
+const aiRoutes = require("./src/routes/aiRoutes");
+const usersRoutes = require("./src/routes/usersRoutes");
+
 const app = express();
 
 // middleware
@@ -19,6 +22,8 @@ app.use("/api/business", businessRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes); 
+app.use("/api/ai", aiRoutes);
+app.use("/api/users", usersRoutes);
 
 // test route
 app.get("/", (req, res) => {

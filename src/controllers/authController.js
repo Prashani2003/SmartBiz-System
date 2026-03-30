@@ -3,9 +3,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 
-// ======================
-// REGISTER USER
-// ======================
 exports.register = async (req, res) => {
 
   try {
@@ -16,7 +13,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // password hash
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const sql = "INSERT INTO users (name,email,password) VALUES (?,?,?)";
@@ -41,9 +37,7 @@ exports.register = async (req, res) => {
 
 
 
-// ======================
-// LOGIN USER
-// ======================
+
 exports.login = (req, res) => {
 
   const { email, password } = req.body;
@@ -73,14 +67,14 @@ exports.login = (req, res) => {
     }
 
     // JWT token
- const token = jwt.sign(
-  { 
-    id: user.id,
-    business_id: user.business_id || 1  // 🔥 FIX
-  },
-  "secretkey",
-  { expiresIn: "1h" }
-);
+    const token = jwt.sign(
+      {
+        id: user.id,
+        business_id: user.business_id  
+      },
+      "secretkey",
+      { expiresIn: "1h" }
+    );
 
     res.json({
       message: "Login successful",
