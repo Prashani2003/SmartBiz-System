@@ -11,6 +11,8 @@ const orderRoutes = require("./src/routes/orderRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes");
 const aiRoutes = require("./src/routes/aiRoutes");
 const usersRoutes = require("./src/routes/usersRoutes");
+const customerRoutes = require("./src/routes/customer");
+const expenseRoutes = require("./src/routes/expenseRoutes");
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes); 
 app.use("/api/ai", aiRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 // test route
 app.get("/", (req, res) => {
